@@ -1,0 +1,26 @@
+syntax = "proto3";
+option java_multiple_files = true;
+
+package flopplayer2;
+
+// The greeting service definition.
+service flopplayer2 {
+  // Sends a greeting
+  rpc CalculatorFlop (IntoData) returns (OutData) {}
+}
+
+// The request message containing the user's name.
+message IntoData {
+  message Record {
+    string Id = 1;
+    repeated int32 Pokers = 2;
+  }
+  repeated Record Data = 1;
+  repeated int32 PublicPoker = 2;
+}
+
+// The response message containing the greetings
+message OutData {
+  int OverCardNumber = 1;
+  string LeaderId = 2;
+}

@@ -1,0 +1,102 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "4yEoW9Xx0jj3lqSqO3wUWR1MaPI=",
+			"path": "bytes",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "1Mb6ULuIUT2/dGwN+jhrlqkB3l8=",
+			"path": "fmt",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "itItaFxcPAm05CTwBq++KBKdqtY=",
+			"path": "git.com.ggttoo44/src/config",
+			"revision": "d4eb811eacf39ae04b592757f309b2fa938730a2",
+			"revisionTime": "2018-10-05T10:22:36Z"
+		},
+		{
+			"checksumSHA1": "OuFoqWb69VVF024u7Djz8qwjeks=",
+			"path": "git.com.ggttoo44/src/grpcinit",
+			"revision": "d4eb811eacf39ae04b592757f309b2fa938730a2",
+			"revisionTime": "2018-10-05T10:22:36Z"
+		},
+		{
+			"checksumSHA1": "4Ju9PkaEXqYEkL9SumgbDThqqS4=",
+			"path": "git.com.ggttoo44/src/init",
+			"revision": "d4eb811eacf39ae04b592757f309b2fa938730a2",
+			"revisionTime": "2018-10-05T10:22:36Z"
+		},
+		{
+			"checksumSHA1": "hDnmSqlDdP0jeipZZvXV2Kz3AmY=",
+			"path": "git.com.ggttoo44/src/service/mysim",
+			"revision": "d4eb811eacf39ae04b592757f309b2fa938730a2",
+			"revisionTime": "2018-10-05T10:22:36Z"
+		},
+		{
+			"checksumSHA1": "GaJLoEuMGnP5ofXvuweAI4wx06U=",
+			"path": "github.com/golang/protobuf/proto",
+			"revision": "31e0d063dd98c052257e5b69eeb006818133f45c",
+			"revisionTime": "2018-10-03T19:35:44Z"
+		},
+		{
+			"checksumSHA1": "xnz61Omintrn+UB/Rv2Hh5BgTZw=",
+			"path": "github.com/json-iterator/go",
+			"revision": "2433035e513208b0f7bd5b50d0aecd889b2c1ff8",
+			"revisionTime": "2018-09-14T01:48:43Z"
+		},
+		{
+			"checksumSHA1": "TfEAap3Hj9ROtNjIuHd+1glYK6s=",
+			"path": "github.com/notnil/combos",
+			"revision": "4516a432043243e81f5e742384441340bac84da7",
+			"revisionTime": "2018-03-27T11:48:42Z"
+		},
+		{
+			"checksumSHA1": "GtamqiJoL7PGHsN454AoffBFMa8=",
+			"path": "golang.org/x/net/context",
+			"revision": "f04abc6bdfa7a0171a8a0c9fd2ada9391044d056",
+			"revisionTime": "2018-09-23T14:45:57Z"
+		},
+		{
+			"checksumSHA1": "BojwrUHGgHJ6VseWfvOOso0xyKU=",
+			"path": "google.golang.org/grpc",
+			"revision": "30212c842399fdf34a468389bcdf72191460436f",
+			"revisionTime": "2018-09-22T00:12:42Z"
+		},
+		{
+			"checksumSHA1": "780k7ZcT5M32PTx7AmxkxMlZ/Wk=",
+			"path": "google.golang.org/grpc/reflection",
+			"revision": "30212c842399fdf34a468389bcdf72191460436f",
+			"revisionTime": "2018-09-22T00:12:42Z"
+		},
+		{
+			"checksumSHA1": "sf9LR5oWjwzZAdD75tva3qkl9qc=",
+			"path": "io/ioutil",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "Lkudhk1kbtQBNP/ziEDEBNJcbUU=",
+			"path": "log",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "sVHK2lzb4NCDtIJsvTLVt8Kc598=",
+			"path": "net",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "vWqwweJl3rpXiqa1YJdIwDha6kU=",
+			"path": "runtime",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "nfhm43BMGm9fHtdjzoXNX7GVBBs=",
+			"path": "strconv",
+			"revision": ""
+		}
+	],
+	"rootPath": "ggttoo44.git.com"
+}

@@ -1,0 +1,26 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.helloworld";
+option java_outer_classname = "HelloWorldProto";
+
+package mysim;
+
+// The greeting service definition.
+service Mysim {
+  // Sends a greeting
+  rpc PokerCalculator (IntoData) returns (OutData) {}
+}
+
+// The request message containing the user's name.
+message IntoData {
+  repeated string data = 1;
+}
+
+// The response message containing the greetings
+message OutData {
+  repeated string CardPoint = 1;
+  string Type7 = 2;
+  int32 Rank = 3;
+  string Type5Ch = 4;
+  string Type5En = 5;
+}
