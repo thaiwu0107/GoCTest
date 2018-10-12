@@ -2,6 +2,7 @@ package flopplayer2
 
 import (
 	"bytes"
+	"sort"
 	"strconv"
 
 	"git.com.ggttoo44/src/config"
@@ -16,15 +17,15 @@ func Service(ctx Context.Context, in *IntoData) (*OutData, error) {
 		73, 74, 81, 82, 83, 84, 91, 92, 93, 94, 101, 102, 103, 104, 111, 112, 113, 114, 121, 122,
 		123, 124, 131, 132, 133, 134, 141, 142, 143, 144,
 	}
-	var removePoker = [7]int{
-		int(in.PublicPoker[0]),
-		int(in.PublicPoker[1]),
-		int(in.PublicPoker[2]),
-		int(in.Data[0].Pokers[0]),
-		int(in.Data[0].Pokers[1]),
-		int(in.Data[1].Pokers[0]),
-		int(in.Data[1].Pokers[1]),
+	var removePoker = []int{}
+	for _, publicPoker := range in.PublicPoker {
+		removePoker = append(removePoker, int(publicPoker))
 	}
+	for _, playerPoker := range in.Data {
+		removePoker = append(removePoker, int(playerPoker.Pokers[0]))
+		removePoker = append(removePoker, int(playerPoker.Pokers[1]))
+	}
+
 	// 移除掉已經使用掉的牌
 	for _, n := range removePoker {
 		j := 0
@@ -51,31 +52,40 @@ func Service(ctx Context.Context, in *IntoData) (*OutData, error) {
 		int(in.Data[1].Pokers[0]),
 		int(in.Data[1].Pokers[1]),
 	}
+	// 整理出誰目前贏面大
 	var leaderID string
-	ftPlayerRank, _ := calculator5(playerMap[in.Data[0].Id])
-	sePlayerRank, _ := calculator5(playerMap[in.Data[1].Id])
-	if ftPlayerRank >= sePlayerRank {
-		leaderID = in.Data[0].Id
-	} else {
-		leaderID = in.Data[1].Id
+	ranks := make(map[string]int, 2)
+	for index := 0; index < 2; index++ {
+		ranks[in.Data[index].Id], _ = calculator5(playerMap[in.Data[index].Id])
 	}
+	sortRanks := sortMapByValue(ranks)
+	leaderID = sortRanks[1].Key
+
+	// 區分目前贏面最大的使用者跟牌面輸掉的使用者
+	var loserID = ""
+	for index4 := 0; index4 < 2; index4++ {
+		if in.Data[index4].Id != leaderID {
+			loserID = in.Data[index4].Id
+		}
+	}
+
 	// 算出會輸的牌型
 	overCardNumber := 0
-	var vPokers1 [6]int
-	for index1, poker1 := range playerMap[in.Data[0].Id] {
-		vPokers1[index1] = poker1
+	var leaderPoker [6]int
+	for index1, poker1 := range playerMap[leaderID] {
+		leaderPoker[index1] = poker1
 	}
-	var vPokers2 [6]int
-	for index2, poker2 := range playerMap[in.Data[1].Id] {
-		vPokers2[index2] = poker2
+	var loserPoker [6]int
+	for index2, poker2 := range playerMap[loserID] {
+		loserPoker[index2] = poker2
 	}
 	for _, n := range config.ArrayC45_1 {
 		pickPoker := lessAllPokers[n[0]]
-		vPokers1[5] = pickPoker
-		vPokers2[5] = pickPoker
-		rank1 := calculator6(vPokers1)
-		rank2 := calculator6(vPokers2)
-		if rank1 < rank2 {
+		leaderPoker[5] = pickPoker
+		loserPoker[5] = pickPoker
+		var leader = calculator6(leaderPoker)
+		var loser = calculator6(loserPoker)
+		if leader < loser {
 			overCardNumber++
 		}
 	}
@@ -199,4 +209,29 @@ func omitArray(sArray []int, removeArray []int) (outArray []int) {
 		sArray = sArray[:j]
 	}
 	return sArray
+}
+
+// Pair A slice of Pairs that implements sort.Interface to sort by Value.
+type Pair struct {
+	Key   string
+	Value int
+}
+
+// PairList A slice of Pairs that implements sort.Interface to sort by Value.
+type PairList []Pair
+
+func (p PairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+func (p PairList) Len() int           { return len(p) }
+func (p PairList) Less(i, j int) bool { return p[i].Value < p[j].Value }
+
+// A function to turn a map into a PairList, then sort and return it.
+func sortMapByValue(m map[string]int) PairList {
+	p := make(PairList, len(m))
+	i := 0
+	for k, v := range m {
+		p[i] = Pair{k, v}
+		i++
+	}
+	sort.Sort(p)
+	return p
 }

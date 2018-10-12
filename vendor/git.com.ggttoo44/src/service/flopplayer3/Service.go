@@ -1,4 +1,4 @@
-package flopplayer2
+package flopplayer3
 
 import (
 	"bytes"
@@ -25,7 +25,6 @@ func Service(ctx Context.Context, in *IntoData) (*OutData, error) {
 		removePoker = append(removePoker, int(playerPoker.Pokers[0]))
 		removePoker = append(removePoker, int(playerPoker.Pokers[1]))
 	}
-
 	// 移除掉已經使用掉的牌
 	for _, n := range removePoker {
 		j := 0
@@ -37,7 +36,7 @@ func Service(ctx Context.Context, in *IntoData) (*OutData, error) {
 		}
 		lessAllPokers = lessAllPokers[:j]
 	}
-	playerMap := make(map[string][5]int, 2)
+	playerMap := make(map[string][5]int, 3)
 	playerMap[in.Data[0].Id] = [5]int{
 		int(in.PublicPoker[0]),
 		int(in.PublicPoker[1]),
@@ -52,20 +51,27 @@ func Service(ctx Context.Context, in *IntoData) (*OutData, error) {
 		int(in.Data[1].Pokers[0]),
 		int(in.Data[1].Pokers[1]),
 	}
+	playerMap[in.Data[2].Id] = [5]int{
+		int(in.PublicPoker[0]),
+		int(in.PublicPoker[1]),
+		int(in.PublicPoker[2]),
+		int(in.Data[1].Pokers[0]),
+		int(in.Data[1].Pokers[1]),
+	}
 	// 整理出誰目前贏面大
 	var leaderID string
-	ranks := make(map[string]int, 2)
-	for index := 0; index < 2; index++ {
+	ranks := make(map[string]int, 3)
+	for index := 0; index < 3; index++ {
 		ranks[in.Data[index].Id], _ = calculator5(playerMap[in.Data[index].Id])
 	}
 	sortRanks := sortMapByValue(ranks)
-	leaderID = sortRanks[1].Key
+	leaderID = sortRanks[2].Key
 
 	// 區分目前贏面最大的使用者跟牌面輸掉的使用者
-	var loserID = ""
-	for index4 := 0; index4 < 2; index4++ {
+	var loserList = []string{}
+	for index4 := 0; index4 < 3; index4++ {
 		if in.Data[index4].Id != leaderID {
-			loserID = in.Data[index4].Id
+			loserList = append(loserList, in.Data[index4].Id)
 		}
 	}
 
@@ -75,17 +81,26 @@ func Service(ctx Context.Context, in *IntoData) (*OutData, error) {
 	for index1, poker1 := range playerMap[leaderID] {
 		leaderPoker[index1] = poker1
 	}
-	var loserPoker [6]int
-	for index2, poker2 := range playerMap[loserID] {
-		loserPoker[index2] = poker2
+	var loserPoker1 [6]int
+	var loserPoker2 [6]int
+	for index2, poker2 := range playerMap[loserList[0]] {
+		loserPoker1[index2] = poker2
 	}
-	for _, n := range config.ArrayC45_1 {
+	for index3, poker3 := range playerMap[loserList[1]] {
+		loserPoker2[index3] = poker3
+	}
+	for _, n := range config.ArrayC43_1 {
 		pickPoker := lessAllPokers[n[0]]
 		leaderPoker[5] = pickPoker
-		loserPoker[5] = pickPoker
+		loserPoker1[5] = pickPoker
+		loserPoker2[5] = pickPoker
 		var leader = calculator6(leaderPoker)
-		var loser = calculator6(loserPoker)
-		if leader < loser {
+		var loser1 = calculator6(loserPoker1)
+		var loser2 = calculator6(loserPoker2)
+		if leader < loser1 {
+			overCardNumber++
+		}
+		if leader < loser2 {
 			overCardNumber++
 		}
 	}

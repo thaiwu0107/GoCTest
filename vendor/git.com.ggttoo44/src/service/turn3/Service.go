@@ -1,4 +1,4 @@
-package flopplayer2
+package turn3
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	Context "golang.org/x/net/context"
 )
 
-// Service 計算保險五張牌
+// Service 計算保險六張牌
 func Service(ctx Context.Context, in *IntoData) (*OutData, error) {
 	var lessAllPokers = []int{
 		21, 22, 23, 24, 31, 32, 33, 34, 41, 42, 43, 44, 51, 52, 53, 54, 61, 62, 63, 64, 71, 72,
@@ -37,55 +37,75 @@ func Service(ctx Context.Context, in *IntoData) (*OutData, error) {
 		}
 		lessAllPokers = lessAllPokers[:j]
 	}
-	playerMap := make(map[string][5]int, 2)
-	playerMap[in.Data[0].Id] = [5]int{
+	playerMap := make(map[string][6]int, 3)
+	playerMap[in.Data[0].Id] = [6]int{
 		int(in.PublicPoker[0]),
 		int(in.PublicPoker[1]),
 		int(in.PublicPoker[2]),
+		int(in.PublicPoker[3]),
 		int(in.Data[0].Pokers[0]),
 		int(in.Data[0].Pokers[1]),
 	}
-	playerMap[in.Data[1].Id] = [5]int{
+	playerMap[in.Data[1].Id] = [6]int{
 		int(in.PublicPoker[0]),
 		int(in.PublicPoker[1]),
 		int(in.PublicPoker[2]),
+		int(in.PublicPoker[3]),
 		int(in.Data[1].Pokers[0]),
 		int(in.Data[1].Pokers[1]),
 	}
+	playerMap[in.Data[2].Id] = [6]int{
+		int(in.PublicPoker[0]),
+		int(in.PublicPoker[1]),
+		int(in.PublicPoker[2]),
+		int(in.PublicPoker[3]),
+		int(in.Data[2].Pokers[0]),
+		int(in.Data[2].Pokers[1]),
+	}
+
 	// 整理出誰目前贏面大
 	var leaderID string
-	ranks := make(map[string]int, 2)
-	for index := 0; index < 2; index++ {
-		ranks[in.Data[index].Id], _ = calculator5(playerMap[in.Data[index].Id])
+	ranks := make(map[string]int, 3)
+	for index0 := 0; index0 < 3; index0++ {
+		ranks[in.Data[index0].Id] = calculator6(playerMap[in.Data[index0].Id])
 	}
 	sortRanks := sortMapByValue(ranks)
-	leaderID = sortRanks[1].Key
+	leaderID = sortRanks[2].Key
 
 	// 區分目前贏面最大的使用者跟牌面輸掉的使用者
-	var loserID = ""
-	for index4 := 0; index4 < 2; index4++ {
+	var loserList = []string{}
+	for index4 := 0; index4 < 3; index4++ {
 		if in.Data[index4].Id != leaderID {
-			loserID = in.Data[index4].Id
+			loserList = append(loserList, in.Data[index4].Id)
 		}
 	}
 
-	// 算出會輸的牌型
-	overCardNumber := 0
-	var leaderPoker [6]int
+	// 算出會輸的次數
+	var overCardNumber = 0
+	var leaderPoker [7]int
 	for index1, poker1 := range playerMap[leaderID] {
 		leaderPoker[index1] = poker1
 	}
-	var loserPoker [6]int
-	for index2, poker2 := range playerMap[loserID] {
-		loserPoker[index2] = poker2
+	var loserPoker1 [7]int
+	var loserPoker2 [7]int
+	for index2, poker2 := range playerMap[loserList[0]] {
+		loserPoker1[index2] = poker2
 	}
-	for _, n := range config.ArrayC45_1 {
+	for index3, poker3 := range playerMap[loserList[1]] {
+		loserPoker2[index3] = poker3
+	}
+	for _, n := range config.ArrayC42_1 {
 		pickPoker := lessAllPokers[n[0]]
-		leaderPoker[5] = pickPoker
-		loserPoker[5] = pickPoker
-		var leader = calculator6(leaderPoker)
-		var loser = calculator6(loserPoker)
-		if leader < loser {
+		leaderPoker[6] = pickPoker
+		loserPoker1[6] = pickPoker
+		loserPoker2[6] = pickPoker
+		leader := calculator7(leaderPoker)
+		loser1 := calculator7(loserPoker1)
+		loser2 := calculator7(loserPoker2)
+		if leader < loser1 {
+			overCardNumber++
+		}
+		if leader < loser2 {
 			overCardNumber++
 		}
 	}
@@ -98,56 +118,7 @@ func Service(ctx Context.Context, in *IntoData) (*OutData, error) {
 	}, nil
 }
 
-// calculator5 單計算一次五張牌的rank
-func calculator5(pokers [5]int) (int, error) {
-	var cardMap = [5][15]int{
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	}
-	var loop5 = [5]int{0, 1, 2, 3, 4}
-	var loop13 = [13]int{14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2}
-	var loopIndex int
-	var pointNumber int
-	var suitNuber int
-	var suitInt int
-	loopIndex = 0
-	for _, loopIndex = range loop5 {
-		suitInt = pokers[loopIndex]
-		suitNuber = suitInt % 10
-		pointNumber = (suitInt - suitNuber) / 10
-		cardMap[suitNuber][pointNumber]++
-		cardMap[suitNuber][0]++
-		cardMap[0][pointNumber]++
-	}
-	isFlush := false
-	var selectSuit int
-	loopIndex = 0
-	for _, loopIndex = range loop5 {
-		if cardMap[loopIndex][0] >= 5 {
-			isFlush = true
-			selectSuit = loopIndex
-			break
-		}
-	}
-	var buffer bytes.Buffer
-	loopIndex = 14
-	for _, loopIndex = range loop13 {
-		buffer.WriteString(strconv.Itoa(cardMap[selectSuit][loopIndex]))
-	}
-	keyOfRank := buffer.String()
-	var rankInfo *Init.Rank5
-	if isFlush {
-		rankInfo = Init.RankTable5CF[keyOfRank]
-	} else {
-		rankInfo = Init.RankTable5CNF[keyOfRank]
-	}
-	return rankInfo.Rank, nil
-}
-
-// calculator6 單計算一次六張牌的rank
+// calculator6 單計算一次6張牌的rank
 func calculator6(pokers [6]int) int {
 	var cardMap = [5][15]int{
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -156,7 +127,7 @@ func calculator6(pokers [6]int) int {
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 	}
-	var loop5 = [5]int{0, 1, 2, 3, 4}
+	var loop5 = [6]int{0, 1, 2, 3, 4}
 	var loop6 = [6]int{0, 1, 2, 3, 4, 5}
 	var loop13 = [13]int{14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2}
 	var loopIndex int
@@ -197,18 +168,54 @@ func calculator6(pokers [6]int) int {
 	return rankInfo.Rank
 }
 
-func omitArray(sArray []int, removeArray []int) (outArray []int) {
-	for _, n := range removeArray {
-		j := 0
-		for _, nn := range sArray {
-			if n != nn {
-				sArray[j] = nn
-				j++
-			}
-		}
-		sArray = sArray[:j]
+// calculator7 單計算一次七張牌的rank
+func calculator7(pokers [7]int) int {
+	var cardMap = [5][15]int{
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 	}
-	return sArray
+	var loop5 = [5]int{0, 1, 2, 3, 4}
+	var loop7 = [7]int{0, 1, 2, 3, 4, 5, 6}
+	var loop13 = [13]int{14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2}
+	var loopIndex int
+	var pointNumber int
+	var suitNuber int
+	var suitInt int
+	loopIndex = 0
+	for _, loopIndex = range loop7 {
+		suitInt = pokers[loopIndex]
+		suitNuber = suitInt % 10
+		pointNumber = (suitInt - suitNuber) / 10
+		cardMap[suitNuber][pointNumber]++
+		cardMap[suitNuber][0]++
+		cardMap[0][pointNumber]++
+	}
+	isFlush := false
+	var selectSuit int
+	loopIndex = 0
+	for _, loopIndex = range loop5 {
+		if cardMap[loopIndex][0] >= 5 {
+			isFlush = true
+			selectSuit = loopIndex
+			break
+		}
+	}
+	var buffer bytes.Buffer
+	loopIndex = 14
+	for _, loopIndex = range loop13 {
+		buffer.WriteString(strconv.Itoa(cardMap[selectSuit][loopIndex]))
+	}
+	keyOfRank := buffer.String()
+	var rankInfo *Init.Rank7
+	if isFlush {
+		rankInfo = Init.RankTable7CF[keyOfRank]
+	} else {
+		rankInfo = Init.RankTable7CNF[keyOfRank]
+	}
+	return rankInfo.Rank
 }
 
 // Pair A slice of Pairs that implements sort.Interface to sort by Value.

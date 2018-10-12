@@ -1,10 +1,10 @@
 syntax = "proto3";
 option java_multiple_files = true;
 
-package flopplayer2;
+package flopplayer3;
 
 // The greeting service definition.
-service Flopplayer2 {
+service Flopplayer3 {
   // Sends a greeting
   rpc CalculatorFlop (IntoData) returns (OutData) {}
 }

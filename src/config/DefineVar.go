@@ -81,6 +81,9 @@ var ArrayC45_1 = combos.New(45, 1)
 // ArrayC44_1 已經做好的陣列[][]int
 var ArrayC44_1 = combos.New(44, 1)
 
+// ArrayC43_1 已經做好的陣列[][]int
+var ArrayC43_1 = combos.New(43, 1)
+
 // ArrayC42_1 已經做好的陣列[][]int
 var ArrayC42_1 = combos.New(42, 1)
 
